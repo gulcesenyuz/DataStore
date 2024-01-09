@@ -75,10 +75,17 @@ class MainActivity : ComponentActivity() {
                         ClickableButton("save to DataStore", 1, viewModel)
                         ClickableButton("get from DataStore", 2, viewModel)
                     }
-                    Text(
-                        textAlign = TextAlign.Center,
-                        text = "your last saved name: ${savedName.value}, surname: ${savedSurname.value}? :)"
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            textAlign = TextAlign.Center,
+                            text = "your last saved name: ${savedName.value}, surname: ${savedSurname.value}"
+                        )
+                    }
                 }
 
             }
