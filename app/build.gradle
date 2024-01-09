@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id "com.google.protobuf" version '0.9.0'
 }
 
 android {
@@ -49,6 +50,20 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    protobuf {
+        protoc {
+            artifact = "com.google.protobuf:protoc:3.14.0"
+        }
+        generateProtoTasks {
+            all().each { task ->
+                task.builtins {
+                    java {
+                        option 'lite'
+                    }
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -70,7 +85,11 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
     //datastore
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    def datastore_version = "1.0.0"
+    api "androidx.datastore:datastore-preferences:$datastore_version"
+
+    def protobuf_version = "3.21.7"
+    implementation "com.google.protobuf:protobuf-javalite:$protobuf_version"
 
     //coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1'
