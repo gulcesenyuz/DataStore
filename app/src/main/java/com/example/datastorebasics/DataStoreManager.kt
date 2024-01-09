@@ -70,6 +70,7 @@ class DataStoreManager(context: Context) {
                     throw exception
                 }
             }
+
             .map { preferences ->
                 val userName = preferences[USER_NAME] ?: ""
                 val userSurname = preferences[USER_SURNAME] ?: ""
