@@ -1,7 +1,6 @@
 package com.example.datastorebasics
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -31,12 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import com.example.datastorebasics.ui.theme.DataStoreBasicsTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
@@ -50,10 +44,12 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MyApp() {
         val context = LocalContext.current
-        val viewModel = MainViewModel()
-        val dataStore = PreferenceDataStore(context)
-        val savedName = dataStore.getNameValueDataStore.collectAsState(initial = "")
-        val savedJob = dataStore.getJobValueDataStore.collectAsState(initial = "")
+        val viewModel = MainViewModel(context)
+
+        //after saving data, ui recompose
+        var savedName = viewModel.getName.collectAsState(initial = "")
+        var savedSurname = viewModel.getSurname.collectAsState(initial = "")
+
         DataStoreBasicsTheme {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -69,19 +65,19 @@ class MainActivity : ComponentActivity() {
                         viewModel
                     )
                     InputField(
-                        "job",
-                        "your job",
+                        "surname",
+                        "your surname",
                         2,
                         modifier = Modifier.padding(top = 16.dp),
                         viewModel
                     )
                     Row {
-                        ClickableButton("save to DataStore", 1, viewModel, dataStore)
-                        ClickableButton("get from DataStore", 2, viewModel, dataStore)
+                        ClickableButton("save to DataStore", 1, viewModel)
+                        ClickableButton("get from DataStore", 2, viewModel)
                     }
                     Text(
                         textAlign = TextAlign.Center,
-                        text = "Let me guess your job ${savedName.value}, are you ${savedJob.value}? :)"
+                        text = "your last saved name: ${savedName.value}, surname: ${savedSurname.value}? :)"
                     )
                 }
 
@@ -132,7 +128,7 @@ fun InputField(
         DisplayDataFieldText(name = inputText)
         when (field) {
             1 -> viewModel.name = inputText
-            2 -> viewModel.job = inputText
+            2 -> viewModel.surname = inputText
         }
     }
 }
@@ -160,10 +156,9 @@ fun ClickableButton(
     text: String,
     action: Int,
     viewModel: MainViewModel,
-    preferenceDataStore: PreferenceDataStore
 ) {
     Button(
-        onClick = { handleButtonAction(action, viewModel, preferenceDataStore) },
+        onClick = { handleButtonAction(action, viewModel) },
         modifier = Modifier.padding(16.dp)
     ) {
         Text(text = text)
@@ -174,28 +169,11 @@ fun ClickableButton(
 private fun handleButtonAction(
     action: Int,
     viewModel: MainViewModel,
-    dataStore: PreferenceDataStore
 ) {
     when (action) {
-        1 -> setValueDataStore(viewModel, dataStore)
-        2 -> getValueDataStore(dataStore)
-    }
-}
-
-private fun getValueDataStore(dataStore: PreferenceDataStore) {
-    CoroutineScope(Dispatchers.IO).launch {
-        dataStore.getValueDataStore.collect {
-            withContext(Dispatchers.Main) {
-                Log.d("DataStore val: ", "user name: ${it.userName} , user job: ${it.userJob}")
-            }
-        }
-    }
-}
-
-private fun setValueDataStore(viewModel: MainViewModel, preferenceDataStore: PreferenceDataStore) {
-    CoroutineScope(Dispatchers.IO).launch {
-        val userDetails = UserDetails(userName = viewModel.name, userJob = viewModel.job)
-        preferenceDataStore.setValueDataStore(userDetails)
+        1 -> viewModel.setValueDataStore()
+        //more actions
+        2 -> viewModel.logUserValueDataStore()
     }
 }
 
