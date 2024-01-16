@@ -19,7 +19,6 @@ class MainViewModel(context: Context) : ViewModel() {
 
     val getName = dataStore.getNameValueDataStore()
     val getSurname = dataStore.getSurnameValueDataStore()
-    private val getUser = dataStore.getValueDataStore().asLiveData()
     fun setValueDataStore() {
         viewModelScope.launch(Dispatchers.IO) {
             val userDetails = UserDetails(userName = name, userSurname = surname)
@@ -28,9 +27,14 @@ class MainViewModel(context: Context) : ViewModel() {
     }
 
     fun logUserValueDataStore() {
-        Log.d(
-            "DataStore val: ",
-            "user name: ${getUser.value?.userName} , user job: ${getUser.value?.userSurname}"
-        )
+        val getUserLiveData = dataStore.getValueDataStore().asLiveData()
+        getUserLiveData.observeForever { userDetails ->
+            userDetails?.let {
+                Log.d(
+                    "DataStore val: ",
+                    "user name: ${it.userName} , user job: ${it.userSurname}"
+                )
+            }
+        }
     }
 }
